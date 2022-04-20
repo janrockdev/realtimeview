@@ -14,7 +14,7 @@
             <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
                 <li><a href="#" class="nav-link px-2 text-secondary">Home</a></li>
                 <li><a href="#" class="nav-link px-2 text-white">Crypto</a></li>
-                <li><a href="#" class="nav-link px-2 text-white">Fiat</a></li>
+                <li><a href="#" class="nav-link px-2 text-white">Forex</a></li>
                 <li><a href="#" class="nav-link px-2 text-white">Shares</a></li>
                 <li><a href="#" class="nav-link px-2 text-white">About</a></li>
             </ul>
@@ -58,8 +58,11 @@
     function Initialize() {
         data = new google.visualization.DataTable();
         data.addColumn('string', 'Symbol');
+        data.addColumn('string', 'Exchange');
         data.addColumn('datetime', 'Update Time');
-        data.addColumn('string', 'Open');
+        data.addColumn('string', 'Buy');
+        data.addColumn('string', 'Sell');
+        data.addColumn('string', 'Mid');
         return data;
     }
 
@@ -76,19 +79,21 @@
             ws.onmessage = function (event) {
                 console.log(`[message] Data received from server: ${event.data}`);
 
-                symbol = 'SOL-USD'
+                symbol = 'BTCUSD'
+                exchange = 'ALPACA.MARKETS'
                 curTime = new Date();
                 var curCount = JSON.parse(`${event.data}`);
-                yVal = curCount.midPrice;
-                data.addRows([[symbol, curTime, yVal.toFixed(2)]]);
-
+                bidVal = curCount.bid;
+                midVal = curCount.mid;
+                askVal = curCount.ask;
+                data.addRows([[symbol, exchange, curTime, askVal.toFixed(3), bidVal.toFixed(3), midVal.toFixed(3)]]);
+                //data.addRows([[symbol, curTime, yVal]]);
 
                 var chartTbl1 = new google.visualization.Table(document.getElementById('displayTable1'));
                 chartTbl1.draw(data, options);
 
-
-                var chartTbl2 = new google.visualization.Table(document.getElementById('displayTable2'));
-                chartTbl2.draw(data, options);
+                // var chartTbl2 = new google.visualization.Table(document.getElementById('displayTable2'));
+                // chartTbl2.draw(data, options);
 
                 data.removeRow(0);
             };

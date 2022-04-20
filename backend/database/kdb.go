@@ -21,7 +21,7 @@ type result struct {
 	bb  []float64
 }
 
-var res float64
+var res utils.BAM
 
 var logr = &lr.Logger{
 	Out:   os.Stdout,
@@ -34,19 +34,19 @@ var logr = &lr.Logger{
 	},
 }
 
-func toStruct(tbl kdb.Table) []utils.OHLCV {
+func toStruct(tbl kdb.Table) []utils.BAM {
 
-	var data = []utils.OHLCV{}
+	var data = []utils.BAM{}
 
 	nrows := int(tbl.Data[0].Len())
 	for i := 0; i < nrows; i++ {
-		rec := utils.OHLCV{Time: tbl.Data[0].Index(i).(time.Time), Open: tbl.Data[1].Index(i).(float64), High: tbl.Data[2].Index(i).(float64), Low: tbl.Data[3].Index(i).(float64), Close: tbl.Data[4].Index(i).(float64), Volume: tbl.Data[5].Index(i).(float64)}
+		rec := utils.BAM{Time: tbl.Data[0].Index(i).(time.Time), Bid: tbl.Data[1].Index(i).(float64), Ask: tbl.Data[2].Index(i).(float64), Mid: tbl.Data[3].Index(i).(float64)}
 		data = append(data, rec)
 	}
 	return data
 }
 
-func Price() float64 {
+func Price() utils.BAM {
 
 	con, _ := kdb.DialKDB("192.168.0.89", 5000, "")
 
@@ -61,7 +61,7 @@ func Price() float64 {
 				return
 			case _ = <-ticker.C:
 
-				ktbl, err := con.Call("select [-1] ts, bid, ask, mid, mid, mid from quotes")
+				ktbl, err := con.Call("select [-1] ts, bid, ask, mid, mid, mid from quotes where sym=`BTCUSD")
 				if err != nil {
 					fmt.Println("Query failed:", err)
 					return
@@ -69,9 +69,10 @@ func Price() float64 {
 
 				series := toStruct(ktbl.Data.(kdb.Table))
 
-				for _, v := range series {
-					res = v.Open
-				}
+				//for _, v := range series {
+				//	res = v.Open
+				//}
+				res = series[0]
 
 			}
 		}
