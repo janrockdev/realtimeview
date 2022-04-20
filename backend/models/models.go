@@ -1,53 +1,46 @@
 package models
 
 import (
-	"math/rand"
+	"github.com/labstack/gommon/log"
+	"stream/database"
 	"time"
 )
 
-type model struct {
+type currency1 struct {
 }
 
-type Model interface {
-	// Return read only channel that has information about % current cpu
-	GetLiveCpuUsage() (<-chan Cpu, error)
+type Currency1 interface {
+	// GetLiveCurrency1 Return read only channel that has information about price
+	GetLiveCurrency1() (<-chan MidPrice, error)
 }
 
-func NewModel() Model {
-	return &model{}
+func NewCurrency1() Currency1 {
+	return &currency1{}
 }
 
-type Cpu struct {
-	PercentageUsage int `json:"cpuPercentageUsage"`
+type MidPrice struct {
+	Price float64 `json:"midPrice"`
 }
 
-// Consider this model responsible for puling data from backend and serving it to controller
-func (m *model) GetLiveCpuUsage() (<-chan Cpu, error) {
-	ch := make(chan Cpu)
-	go WriteValues(ch)
+// GetLiveCurrency1 Consider this model responsible for puling data from backend and serving it to controller
+func (m *currency1) GetLiveCurrency1() (<-chan MidPrice, error) {
+	ch1 := make(chan MidPrice)
+	go func() {
+		err := WritePrices(ch1)
+		if err != nil {
+			log.Error(err)
+		}
+	}()
 
-	return ch, nil
+	return ch1, nil
 }
 
-// Generates random values and writes to passed on channel
-func WriteValues(ch chan<- Cpu) error {
-	ticker := time.NewTicker(1 * time.Second)
+// WritePrices Generates random values and writes to passed on channel
+func WritePrices(ch1 chan<- MidPrice) error {
+	ticker := time.NewTicker(5 * time.Second)
 	for {
 		<-ticker.C
-		rand.Seed(time.Now().UnixNano())
-		min := 1980
-		max := 2000
-		newVal := Cpu{PercentageUsage: rand.Intn(max-min+1) + min}
-		ch <- newVal
+		newPrice := MidPrice{Price: database.Price()}
+		ch1 <- newPrice
 	}
 }
-
-//// Generates random values and writes to passed on channel
-//func WriteValues(ch chan <- Cpu ) error {
-//	ticker := time.NewTicker(1 * time.Second)
-//	for{
-//		<- ticker.C
-//		newVal := Cpu{PercentageUsage:rand.Intn(100)}
-//		ch <- newVal
-//	}
-//}

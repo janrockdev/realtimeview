@@ -4,16 +4,17 @@ import (
 	"encoding/json"
 	"fmt"
 	echo "github.com/labstack/echo/v4"
+	"github.com/labstack/gommon/log"
 	"golang.org/x/net/websocket"
 	"stream/models"
 )
 
 // Controller interface has two methods
 type Controller interface {
-	// Homecontroller renders initial home page
+	// HomeController renders initial home page
 	HomeController(e echo.Context) error
 
-	// StreamController responds with live cpu status over websocket
+	// StreamController responds with live price status over websocket
 	StreamController(e echo.Context) error
 }
 
@@ -24,14 +25,12 @@ func NewController() Controller {
 	return &controller{}
 }
 
-var model models.Model
+var model models.Currency1
 
-// Initializes the models
-func Init(){
-	model = models.NewModel()
+// Init Initializes the models
+func Init() {
+	model = models.NewCurrency1()
 }
-
-
 
 func (c *controller) HomeController(e echo.Context) error {
 	return e.File("views/index.html")
@@ -40,15 +39,20 @@ func (c *controller) HomeController(e echo.Context) error {
 func (c *controller) StreamController(e echo.Context) error {
 
 	websocket.Handler(func(ws *websocket.Conn) {
-		defer ws.Close()
-		status, err := model.GetLiveCpuUsage()
+		defer func(ws *websocket.Conn) {
+			err := ws.Close()
+			if err != nil {
+				log.Error(err)
+			}
+		}(ws)
+		status, err := model.GetLiveCurrency1()
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
 		for {
 			// Write
-			newVal := <- status
+			newVal := <-status
 			jsonResponse, _ := json.Marshal(newVal)
 			err := websocket.Message.Send(ws, fmt.Sprintln(string(jsonResponse)))
 			if err != nil {
