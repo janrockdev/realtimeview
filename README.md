@@ -1,5 +1,9 @@
-# RealTimeView
+# RealTimeView (Golang)
+
 Visualizing real-time metrics from golang server (using WebSockets and plain-javascript). The aim is to create simple end-to-end solution.
+
+Frontend:
+![screenshot](screenshot.png "Screenshot")
 
 ## Backend
 It is a service that exposes certain endpoints to get data from sources like database.

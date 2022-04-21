@@ -1,25 +1,22 @@
 <!DOCTYPE html>
 <html>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3"
+      crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+        crossorigin="anonymous"></script>
 <header class="p-3 bg-dark text-white">
+    <title>RealTimeView</title>
     <div class="container">
         <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
-            <a href="/" class="d-flex align-items-center mb-2 mb-lg-0 text-white text-decoration-none">
-                <svg class="bi me-2" width="40" height="32" role="img" aria-label="Bootstrap">
-                    <use xlink:href="#bootstrap"></use>
-                </svg>
-            </a>
-
             <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
                 <li><a href="#" class="nav-link px-2 text-secondary">Home</a></li>
-                <li><a href="#" class="nav-link px-2 text-white">Crypto</a></li>
-                <li><a href="#" class="nav-link px-2 text-white">Forex</a></li>
-                <li><a href="#" class="nav-link px-2 text-white">Shares</a></li>
                 <li><a href="#" class="nav-link px-2 text-white">About</a></li>
             </ul>
-
-            <div class="text-end">
+            <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
                 <button type="button" class="btn btn-outline-light me-2">Login</button>
                 <button type="button" class="btn btn-warning">Sign-up</button>
             </div>
@@ -28,16 +25,31 @@
 </header>
 <body>
 
-<div class="row justify-content-md-center">
-    <div class="col-8" style="padding-top: 20px; padding-bottom: 20px">
-        <h5>Live Data</h5>
-    </div>
-</div>
-<div class="row justify-content-md-center">
-    <div class="col-8">
+<div class="col-lg-8 mx-auto p-3 py-md-5">
+    <main>
+        <h1>Get started with Bootstrap</h1>
+        <p class="fs-6 col-md-8">Quickly and easily get started with Bootstrap's compiled, production-ready files with this barebones example
+            featuring some basic HTML and helpful links.</p>
+        <br>
         <div id="displayTable1"></div>
-        <div id="displayTable2"></div>
-    </div>
+
+        <hr class="col-3 col-md-2 mb-5">
+
+        <div class="row g-5">
+            <div class="col-md-6">
+                <h2>Starter projects</h2>
+                <p>Ready to beyond the starter template? Check out these open source projects that you can quickly duplicate to a new GitHub repository.</p>
+            </div>
+            <div class="col-md-6">
+                <h2>Guides</h2>
+                <p>Read more detailed instructions and documentation on using or contributing to Bootstrap.</p>
+                <ul class="icon-list">
+                    <li><a href="/docs/5.1/getting-started/introduction/">Bootstrap quick start guide</a></li>
+                    <li><a href="/docs/5.1/getting-started/webpack/">Bootstrap Webpack guide</a></li>
+                </ul>
+            </div>
+        </div>
+    </main>
 </div>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
@@ -51,15 +63,20 @@
     google.setOnLoadCallback(Initialize);
 
     var options = {
-        dateFormat: 'HH:mm:ss',
-        textAlignLast: 'right'
+        height: 100,
+        width: '100%',
+        allowHtml: true,
+        cssClassNames: {
+            tableCell: 'h6',
+            headerCell: 'h6'
+        }
     };
 
     function Initialize() {
         data = new google.visualization.DataTable();
         data.addColumn('string', 'Symbol');
         data.addColumn('string', 'Exchange');
-        data.addColumn('datetime', 'Update Time');
+        data.addColumn('string', 'Update Time');
         data.addColumn('string', 'Buy');
         data.addColumn('string', 'Sell');
         data.addColumn('string', 'Mid');
@@ -71,7 +88,7 @@
         if ("WebSocket" in window) {
             console.log("WebSocket is supported by your Browser!");
 
-            // Let us open a web socket
+            // Open a web socket
             var url = "localhost:8081";
             console.log(url);
             var ws = new WebSocket("ws://" + url + "/stream");
@@ -79,22 +96,20 @@
             ws.onmessage = function (event) {
                 console.log(`[message] Data received from server: ${event.data}`);
 
-                symbol = 'BTCUSD'
-                exchange = 'ALPACA.MARKETS'
-                curTime = new Date();
+                curTime = new Date().toLocaleString().replace(',','');
                 var curCount = JSON.parse(`${event.data}`);
-                bidVal = curCount.bid;
-                midVal = curCount.mid;
-                askVal = curCount.ask;
-                data.addRows([[symbol, exchange, curTime, askVal.toFixed(3), bidVal.toFixed(3), midVal.toFixed(3)]]);
-                //data.addRows([[symbol, curTime, yVal]]);
+                bidBTC = curCount.bidBTC;
+                midBTC = curCount.midBTC;
+                askBTC = curCount.askBTC;
+                bidSOL = curCount.bidSOL;
+                midSOL = curCount.midSOL;
+                askSOL = curCount.askSOL;
+                data.addRows([['BTCUSD', 'ALPACA.MARKETS', curTime, askBTC.toFixed(3), bidBTC.toFixed(3), midBTC.toFixed(3)]]);
+                data.addRows([['SOLUSD', 'ALPACA.MARKETS', curTime, askSOL.toFixed(3), bidSOL.toFixed(3), midSOL.toFixed(3)]]);
 
                 var chartTbl1 = new google.visualization.Table(document.getElementById('displayTable1'));
                 chartTbl1.draw(data, options);
-
-                // var chartTbl2 = new google.visualization.Table(document.getElementById('displayTable2'));
-                // chartTbl2.draw(data, options);
-
+                data.removeRow(0);
                 data.removeRow(0);
             };
 
@@ -121,4 +136,16 @@
     streamLiveCpuUsage();
 </script>
 </body>
+<div class="container">
+    <footer class="py-5">
+        <div class="d-flex justify-content-between py-4 my-4 border-top">
+            <p>© 2022 Company, Inc. All rights reserved.</p>
+            <ul class="list-unstyled d-flex">
+                <li class="ms-3"><a class="link-dark" href="#"><svg class="bi" width="24" height="24"><use xlink:href="#twitter"></use></svg></a></li>
+                <li class="ms-3"><a class="link-dark" href="#"><svg class="bi" width="24" height="24"><use xlink:href="#instagram"></use></svg></a></li>
+                <li class="ms-3"><a class="link-dark" href="#"><svg class="bi" width="24" height="24"><use xlink:href="#facebook"></use></svg></a></li>
+            </ul>
+        </div>
+    </footer>
+</div>
 </html>

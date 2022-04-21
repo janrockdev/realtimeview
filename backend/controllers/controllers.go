@@ -42,12 +42,12 @@ func (c *controller) StreamController(e echo.Context) error {
 		defer func(ws *websocket.Conn) {
 			err := ws.Close()
 			if err != nil {
-				log.Error(err)
+				log.Errorf("Controllers (websocker handler): %v", err)
 			}
 		}(ws)
 		status, err := model.GetLiveCurrency1()
 		if err != nil {
-			fmt.Println(err)
+			log.Errorf("Controllers (websocker handler status): %v", err)
 			return
 		}
 		for {
@@ -56,7 +56,7 @@ func (c *controller) StreamController(e echo.Context) error {
 			jsonResponse, _ := json.Marshal(newVal)
 			err := websocket.Message.Send(ws, fmt.Sprintln(string(jsonResponse)))
 			if err != nil {
-				fmt.Println(err)
+				log.Errorf("Controllers (websocker message): %v", err)
 			}
 		}
 	}).ServeHTTP(e.Response(), e.Request())

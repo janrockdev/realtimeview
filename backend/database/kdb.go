@@ -14,14 +14,7 @@ import (
 	prefixed "github.com/x-cray/logrus-prefixed-formatter"
 )
 
-type result struct {
-	hlc float64
-	ema []float64
-	rsi []float64
-	bb  []float64
-}
-
-var res utils.BAM
+var res []utils.BAM
 
 var logr = &lr.Logger{
 	Out:   os.Stdout,
@@ -46,7 +39,7 @@ func toStruct(tbl kdb.Table) []utils.BAM {
 	return data
 }
 
-func Price() utils.BAM {
+func Price() []utils.BAM {
 
 	con, _ := kdb.DialKDB("192.168.0.89", 5000, "")
 
@@ -61,6 +54,8 @@ func Price() utils.BAM {
 				return
 			case _ = <-ticker.C:
 
+				res = []utils.BAM{}
+
 				ktbl, err := con.Call("select [-1] ts, bid, ask, mid, mid, mid from quotes where sym=`BTCUSD")
 				if err != nil {
 					fmt.Println("Query failed:", err)
@@ -72,8 +67,13 @@ func Price() utils.BAM {
 				//for _, v := range series {
 				//	res = v.Open
 				//}
-				res = series[0]
 
+				res = append(res, series[0])
+
+				ktblSOL, err := con.Call("select [-1] ts, bid, ask, mid, mid, mid from quotes where sym=`SOLUSD")
+				seriesSOL := toStruct(ktblSOL.Data.(kdb.Table))
+				res = append(res, seriesSOL[0])
+				return
 			}
 		}
 	}()
