@@ -89,7 +89,7 @@
             console.log("WebSocket is supported by your Browser!");
 
             // Open a web socket
-            var url = "localhost:8081";
+            var url = "localhost:8082";
             console.log(url);
             var ws = new WebSocket("ws://" + url + "/stream");
 
@@ -116,15 +116,18 @@
             ws.onclose = function (event) {
                 if (event.wasClean) {
                     console.log(`[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`);
+                    ws.close();
                 } else {
                     // e.g. server process killed or network down
                     // event.code is usually 1006 in this case
                     console.log('[close] Connection died');
+                    ws.close();
                 }
             };
 
             ws.onerror = function (error) {
                 console.log(`[error] ${error.message}`);
+                ws.close();
             };
 
         } else {
